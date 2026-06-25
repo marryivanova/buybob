@@ -1,9 +1,9 @@
-from contextlib import contextmanager
+from contextlib import contextmanager, _GeneratorContextManager
 from typing import Generator
 
 from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import Session as ORM_Session
+from sqlalchemy.orm import Session as ORM_Session, Session
 from sqlalchemy.orm import scoped_session, sessionmaker
 
 from settings import settings
@@ -34,6 +34,9 @@ class DatabaseManager:
         )
 
         self.Session = scoped_session(sessionmaker(bind=self.engine))
+
+    def fastapi_dep(self) -> _GeneratorContextManager[Session]:
+        return self.session_scope()
 
     @contextmanager
     def session_scope(self) -> Generator[ORM_Session, None, None]:
@@ -66,6 +69,14 @@ class DatabaseManager:
     def close_all_connections(self):
         if self.engine:
             self.engine.dispose()
+
+
+def get_db() -> Generator[Session, None, None]:
+    session = db.Session()
+    try:
+        yield session
+    finally:
+        session.close()
 
 
 db = DatabaseManager()
