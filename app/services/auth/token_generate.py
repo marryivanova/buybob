@@ -4,7 +4,7 @@ from typing import Optional
 from fastapi import Depends, HTTPException, status
 from jose import JWTError, jwt
 
-from app.services.auth import ALGORITHM, oauth2_scheme, SECRET_KEY, get_user_by_username
+from app.services.auth import ALGORITHM, SECRET_KEY, get_user_by_username, oauth2_scheme
 from database import db
 
 

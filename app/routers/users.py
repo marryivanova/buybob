@@ -1,7 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from pydantic import BaseModel
 
-
 from app.services.auth.token_generate import create_access_token
 from app.services.auth.validate_password import hash_password
 from database.core import Session, get_db
