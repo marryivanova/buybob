@@ -1,7 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from pydantic import BaseModel
 
-
 from app.services.auth.token_generate import create_access_token
 from app.services.auth.validate_password import hash_password
 from database.core import Session, get_db
@@ -28,7 +27,61 @@ class UserResponse(BaseModel):
 
 @router.post("/add-user", response_model=UserResponse)
 async def add_user(user_data: UserCreate, db: Session = Depends(get_db)):
-    """Создание нового пользователя с хешированием пароля"""
+    """
+    Регистрация нового пользователя в системе
+
+    Параметры:
+    ----------
+    user_data : UserCreate
+        Объект с данными нового пользователя:
+        - username: str - уникальное имя пользователя (3-20 символов)
+        - email: str - валидный email адрес
+        - full_name: str - полное имя пользователя
+        - password: str - пароль (минимум 8 символов)
+        - department_id: int - ID отдела пользователя
+
+    Возвращает:
+    -----------
+    UserResponse
+        Объект с данными созданного пользователя:
+        - username: str
+        - email: str
+        - full_name: str
+        - department_id: int
+        - access_token: str - JWT токен для авторизации
+
+    Исключения:
+    -----------
+    HTTPException 400:
+        - Если пользователь с таким username или email уже существует
+
+    HTTPException 500:
+        - При внутренних ошибках сервера
+
+    Пример запроса:
+    ---------------
+    ```json
+    {
+        "username": "ivanov",
+        "email": "ivanov@example.com",
+        "full_name": "Иванов Иван",
+        "password": "securepassword123",
+        "department_id": 1
+    }
+    ```
+
+    Пример ответа:
+    --------------
+    ```json
+    {
+        "username": "ivanov",
+        "email": "ivanov@example.com",
+        "full_name": "Иванов Иван",
+        "department_id": 1,
+        "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+    }
+    ```
+    """
 
     existing_user = (
         db.query(Employee)

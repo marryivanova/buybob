@@ -1,9 +1,10 @@
-from contextlib import contextmanager, _GeneratorContextManager
+from contextlib import _GeneratorContextManager, contextmanager
 from typing import Generator
 
 from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import Session as ORM_Session, Session
+from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session as ORM_Session
 from sqlalchemy.orm import scoped_session, sessionmaker
 
 from settings import settings
