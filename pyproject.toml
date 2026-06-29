@@ -27,6 +27,7 @@ requests = ">=2.28.1"
 tenacity = "^8.0.0"
 alembic = "^1.18.4"
 fastapi-admin = "^1.0.4"
+tortoise-orm = "^1.1.7"
 
 [tool.poetry.dependencies.uvicorn]
 extras = ["standard"]
