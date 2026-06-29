@@ -27,6 +27,8 @@ from app.admin.models import EmployeeModel
 from app.admin.providers import LoginProvider
 from app.services import api_router
 
+from settings import settings
+
 BASE_DIR = Path(__file__).resolve().parent
 ADMIN_TEMPLATES_DIR = BASE_DIR / "app" / "admin" / "templates"
 
@@ -77,7 +79,7 @@ def configure_database(app: FastAPI) -> None:
         app,
         config=dict(
             connections={
-                "default": "postgres://postgres:postgres@localhost:5432/contest",
+                "default": settings.database.db_url,
             },
             apps={
                 "models": {
@@ -160,8 +162,8 @@ if __name__ == "__main__":
 
     uvicorn.run(
         "main:app",
-        host="127.0.0.1",
-        port=8000,
+        host=settings.app.host,
+        port=settings.app.port,
         log_level="debug",
         access_log=False,
     )
