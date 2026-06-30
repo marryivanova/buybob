@@ -1,10 +1,10 @@
-from fastapi import Request, HTTPException
+from fastapi import HTTPException, Request
 from fastapi_admin.app import app
 from fastapi_admin.resources import Dropdown, Field, Link, Model
 from fastapi_admin.widgets import displays, inputs
 from starlette.datastructures import FormData
-from tortoise.functions import Sum
 from tortoise.expressions import F
+from tortoise.functions import Sum
 
 from app.admin.display import StatusBadge
 from app.admin.display.product_table import UnitBadge

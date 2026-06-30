@@ -1,6 +1,7 @@
-from starlette.requests import Request
-from fastapi_admin.widgets.displays import Display
 from enum import Enum
+
+from fastapi_admin.widgets.displays import Display
+from starlette.requests import Request
 
 
 class BaseBadge(Display):
