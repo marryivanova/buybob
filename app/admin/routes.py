@@ -9,6 +9,18 @@ from starlette.status import HTTP_303_SEE_OTHER, HTTP_404_NOT_FOUND
 from app.admin.models import Config, EmployeeModel, Product
 
 
+@app.get("/storage")
+async def storage(request: Request):
+    return templates.TemplateResponse(
+        request,
+        name="storage.html",
+        context={
+            "request": request,
+            "page_title": "Storage",
+        },
+    )
+
+
 @app.get("/")
 async def home(request: Request, resources=Depends(get_resources)):
     total_products = await Product.all().count()

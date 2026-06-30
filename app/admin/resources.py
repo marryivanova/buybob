@@ -1,10 +1,22 @@
-from fastapi import Request
+from fastapi import Request, HTTPException
 from fastapi_admin.app import app
 from fastapi_admin.resources import Dropdown, Field, Link, Model
 from fastapi_admin.widgets import displays, inputs
+from starlette.datastructures import FormData
+from tortoise.functions import Sum
+from tortoise.expressions import F
 
-from app.admin.enums import StatusEnum
+from app.admin.display import StatusBadge
+from app.admin.display.product_table import UnitBadge
+from app.admin.enums import StatusEnum, UnitEnum
 from app.admin.models import Category, Config, EmployeeModel, Product, Supplier
+
+# TODO: Система складского учета
+# @app.register
+# class ProductResource(Link):
+#     label = "Склад"
+#     icon = "fas fa-star"
+#     url = "/storage"
 
 
 @app.register
@@ -61,57 +73,47 @@ class ProductResource(Model):
 
     fields = [
         "id",
-        Field(
-            name="name",
-            label="Наименование",
-        ),
-        Field(
-            name="supplier_id",
-            label="Поставщик",
-            input_=inputs.ForeignKey(model=Supplier),
-        ),
-        Field(
-            name="category_id",
-            label="Категория",
-            input_=inputs.ForeignKey(model=Category),
-        ),
+        "name",
+        Field(name="supplier_id", label="Поставщик", input_=inputs.ForeignKey(model=Supplier)),
+        Field(name="category_id", label="Категория", input_=inputs.ForeignKey(model=Category)),
         Field(
             name="unit",
-            label="Единица измерения",
+            label="Ед. изм.",
+            input_=inputs.Enum(enum_type=str, enum=UnitEnum),
+            display=UnitBadge(),
         ),
+        Field(name="quantity", label="Количество", input_=inputs.Input(step="0.01")),
+        Field(name="price", label="Цена за ед.", input_=inputs.Input(step="0.01")),
         Field(
-            name="quantity",
-            label="Количество",
-            input_=inputs.Input(step="0.01"),
+            name="status",
+            label="Статус",
+            input_=inputs.Enum(enum_type=str, enum=StatusEnum),
+            display=StatusBadge(),
         ),
-        Field(
-            name="price",
-            label="Цена за ед.",
-            input_=inputs.Input(step="0.01"),
-        ),
-        Field(
-            name="status", label="Статус товара", input_=inputs.Enum(enum_type=str, enum=StatusEnum)
-        ),
-        Field(
-            name="expiry_date",
-            label="Срок годности",
-            input_=inputs.Date(),
-        ),
+        Field(name="expiry_date", label="Срок годности", input_=inputs.Date()),
     ]
 
-    async def list(
-        self,
-        request: Request,
-        page: int,
-        page_size: int,
-        filters: dict,
-        sort: str,
-    ):
+    @classmethod
+    async def resolve_data(cls, request: Request, data: FormData):
+        ret, m2m_ret = await super().resolve_data(request, data)
+
+        quantity = float(ret.get("quantity", 0))
+        price = float(ret.get("price", 0))
+
+        if quantity < 0:
+            raise HTTPException(status_code=400, detail="Количество не может быть отрицательным")
+
+        if price < 0:
+            raise HTTPException(status_code=400, detail="Цена не может быть отрицательной")
+
+        return ret, m2m_ret
+
+    async def list(self, request: Request, page: int, page_size: int, filters: dict, sort: str):
         response = await super().list(request, page, page_size, filters, sort)
 
-        all_products = await Product.all().values("quantity", "price")
+        summary = await Product.annotate(total=Sum(F("quantity") * F("price"))).first()
 
-        total_value = sum(float(product["quantity"] * product["price"]) for product in all_products)
+        total_value = summary.total if summary and summary.total else 0.0
 
         response.context.update(
             {
@@ -120,6 +122,14 @@ class ProductResource(Model):
         )
 
         return response
+
+    async def cell_attributes(self, request: Request, obj: dict, field: Field) -> dict:
+        """
+        Пример улучшения UI: подсвечиваем товары, которых мало (меньше 5 шт)
+        """
+        if field.name == "quantity" and obj.get("quantity", 0) < 5:
+            return {"style": "color: red; font-weight: bold;"}
+        return {}
 
 
 @app.register
