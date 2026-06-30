@@ -22,11 +22,16 @@ class EmployeeModel(Model):
     password = fields.CharField(max_length=255, source_field="password_hash")
 
     department = fields.ForeignKeyField(
-        "models.DepartmentModel", related_name="employees", null=True
+        "models.DepartmentModel",
+        related_name="employees",
+        null=True,
     )
 
     class Meta:
         table = "employees"
+
+    def __str__(self):
+        return self.full_name or self.username
 
 
 class Supplier(Model):
@@ -40,6 +45,9 @@ class Supplier(Model):
     class Meta:
         table = "suppliers"
 
+    def __str__(self):
+        return self.name
+
 
 class Category(Model):
     id = fields.IntField(pk=True)
@@ -50,25 +58,67 @@ class Category(Model):
     class Meta:
         table = "categories"
 
+    def __str__(self):
+        return self.name
+
 
 class Product(Model):
     id = fields.IntField(pk=True)
-    name = fields.CharField(max_length=200, verbose_name="Название")
+
+    name = fields.CharField(
+        max_length=200,
+        verbose_name="Название",
+    )
+
     supplier = fields.ForeignKeyField(
-        "models.Supplier", related_name="products", verbose_name="Поставщик"
+        "models.Supplier",
+        related_name="products",
+        verbose_name="Поставщик",
     )
+
     category = fields.ForeignKeyField(
-        "models.Category", related_name="products", verbose_name="Категория", null=True
+        "models.Category",
+        related_name="products",
+        verbose_name="Категория",
+        null=True,
     )
-    unit = fields.CharEnumField(UnitEnum, default=UnitEnum.PCS, verbose_name="Мера измерения")
-    quantity = fields.DecimalField(max_digits=10, decimal_places=2, verbose_name="Количество")
-    price = fields.DecimalField(max_digits=12, decimal_places=2, verbose_name="Цена за ед.")
-    status = fields.CharEnumField(StatusEnum, default=StatusEnum.IN_STOCK, verbose_name="Статус")
-    expiry_date = fields.DateField(null=True, verbose_name="Срок годности")
+
+    unit = fields.CharEnumField(
+        UnitEnum,
+        default=UnitEnum.PCS,
+        verbose_name="Мера измерения",
+    )
+
+    quantity = fields.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        verbose_name="Количество",
+    )
+
+    price = fields.DecimalField(
+        max_digits=12,
+        decimal_places=2,
+        verbose_name="Цена за ед.",
+    )
+
+    status = fields.CharEnumField(
+        StatusEnum,
+        default=StatusEnum.IN_STOCK,
+        verbose_name="Статус",
+    )
+
+    expiry_date = fields.DateField(
+        null=True,
+        verbose_name="Срок годности",
+    )
+
     created_at = fields.DatetimeField(auto_now_add=True)
 
     class Meta:
         table = "products"
+
+    def __str__(self):
+        return self.name
 
 
 class Config(Model):
@@ -77,3 +127,9 @@ class Config(Model):
     key = fields.CharField(max_length=20, unique=True)
     value = fields.JSONField()
     status = fields.IntEnumField(Status, default=Status.on)
+
+    class Meta:
+        table = "configs"
+
+    def __str__(self):
+        return self.label

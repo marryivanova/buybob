@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+
+{% block content %}
+<!-- Ваша кастомная логика -->
+<div class="row mb-3">
+    <div class="col-md-4">
+        <div class="card bg-primary text-white">
+            <div class="card-body">
+                <h6>Общая стоимость склада</h6>
+                <!-- Здесь можно подставить переменную из контекста -->
+                <h3>{{ total_stock_value }} ₽</h3>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Стандартная таблица -->
+{{ super() }}
+{% endblock %}
