@@ -1,50 +1,37 @@
-import os
-
-from dotenv import load_dotenv
-from pydantic_settings import BaseSettings
-
-load_dotenv()
+from pydantic import Field
+from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class DatabaseSettings(BaseSettings):
-    host: str = os.getenv("DB_HOST", "localhost")
-    port: str = os.getenv("DB_PORT", "5432")
-    user: str = os.getenv("DB_USER", "postgres")
-    password: str = os.getenv("DB_PASSWORD", "postgres")
-    database: str = os.getenv("DB_NAME", "contest")
+    host: str = Field("localhost", validation_alias="DB_HOST")
+    port: int = Field(5432, validation_alias="DB_PORT")
+    user: str = Field("postgres", validation_alias="DB_USER")
+    password: str = Field("postgres", validation_alias="DB_PASSWORD")
+    database: str = Field("contest", validation_alias="DB_NAME")
 
     @property
     def db_url(self) -> str:
-        return f"postgresql://{self.user}:{self.password}@{self.host}:{self.port}/{self.database}"
+        return f"postgres://{self.user}:{self.password}@{self.host}:{self.port}/{self.database}"
 
 
 class AppSettings(BaseSettings):
-    host: str = os.getenv("APP_HOST", "localhost")
-    port: str = os.getenv("APP_PORT", "8000")
+    host: str = Field("0.0.0.0", validation_alias="APP_HOST")
+    port: int | str = Field(8000, validation_alias="APP_PORT")
 
 
 class RedisSettings(BaseSettings):
-    password: str = os.getenv("REDIS_PASSWORD", "skogbjbbrt43t8tu34838")
-    username: str = os.getenv("REDIS_USERNAME", "redis")
-    user_password: str = os.getenv("REDIS_PASSWORD", "skogbjbbrt43t8tu34838")
-    host: str = os.getenv("REDIS_HOST", "localhost")
-    port: str = os.getenv("REDIS_PORT", "6379")
+    host: str = Field("localhost", validation_alias="REDIS_HOST")
+    port: int = Field(6379, validation_alias="REDIS_PORT")
+    username: str = Field("redis", validation_alias="REDIS_USERNAME")
+    password: str = Field("password", validation_alias="REDIS_PASSWORD")
 
 
 class Settings(BaseSettings):
+    model_config = SettingsConfigDict(env_file=".env", extra="ignore")
+
     database: DatabaseSettings = DatabaseSettings()
     redis: RedisSettings = RedisSettings()
     app: AppSettings = AppSettings()
 
-
-TORTOISE_ORM = {
-    "connections": {"default": "postgres://postgres:postgres@localhost:5432/contest"},
-    "apps": {
-        "models": {
-            "models": ["app.admin.models", "aerich.models"],
-            "default_connection": "default",
-        },
-    },
-}
 
 settings = Settings()
