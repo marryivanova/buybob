@@ -16,10 +16,12 @@ class DepartmentModel(Model):
 
 class EmployeeModel(Model):
     id = fields.IntField(pk=True)
-    username = fields.CharField(max_length=255, unique=True)
-    email = fields.CharField(max_length=255, unique=True)
-    full_name = fields.CharField(max_length=255)
-    password = fields.CharField(max_length=255, source_field="password_hash")
+    username = fields.CharField(max_length=255, unique=True, verbose_name="Логин")
+    email = fields.CharField(max_length=255, unique=True, verbose_name="Почта")
+    full_name = fields.CharField(max_length=255, unique=True, verbose_name="ФИО")
+    password = fields.CharField(
+        max_length=255, source_field="password_hash", unique=True, verbose_name="Пароль"
+    )
 
     department = fields.ForeignKeyField(
         "models.DepartmentModel",
@@ -39,8 +41,8 @@ class Supplier(Model):
     name = fields.CharField(max_length=200, verbose_name="Название компании")
     inn = fields.CharField(max_length=12, verbose_name="ИНН")
     contact_name = fields.CharField(max_length=100, verbose_name="Контактное лицо")
-    email = fields.CharField(max_length=100)
-    phone = fields.CharField(max_length=20)
+    email = fields.CharField(max_length=100, verbose_name="Почта")
+    phone = fields.CharField(max_length=20, verbose_name="Номер телефона")
 
     class Meta:
         table = "suppliers"
@@ -50,10 +52,10 @@ class Supplier(Model):
 
 
 class Category(Model):
-    id = fields.IntField(pk=True)
-    slug = fields.CharField(max_length=200)
-    name = fields.CharField(max_length=200)
-    created_at = fields.DatetimeField(auto_now_add=True)
+    id = fields.IntField(pk=True, verbose_name="Уникальный номер")
+    slug = fields.CharField(max_length=200, verbose_name="Описание категории")
+    name = fields.CharField(max_length=200, verbose_name="Наименование категории", unique=True)
+    created_at = fields.DatetimeField(auto_now_add=True, verbose_name="Дата создания")
 
     class Meta:
         table = "categories"
