@@ -18,10 +18,10 @@ class BaseBadge(Display):
 class StatusBadge(BaseBadge):
     def generate_html(self, text: str):
         colors = {
-            "в наличии": "bg-success",
-            "заказан": "bg-warning",
-            "отгружен": "bg-primary",
-            "списан": "bg-danger",
+            "в наличии": "badge-soft-success",
+            "заказан": "badge-soft-warning",
+            "отгружен": "badge-soft-primary",
+            "списан": "badge-soft-danger",
         }
         color_class = colors.get(text.lower(), "bg-secondary")
         return f'<span class="badge {color_class} text-white">{text}</span>'
