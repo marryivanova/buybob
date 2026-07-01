@@ -1,0 +1,80 @@
+{% extends "layout.html" %}
+{% block page_body %}
+
+<div class="container py-3" style="max-width: 1000px;">
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="fw-bold m-0 text-dark">Редактирование: {{ resource_label }}</h2>
+            <p class="text-muted small mt-1 mb-0">ID записи: {{ pk }}</p>
+        </div>
+        <a href="{{ request.app.admin_path }}/{{ resource }}/list" class="btn btn-outline-secondary px-4 d-flex align-items-center" style="height: 44px; font-weight: 500;">
+            <i class="ti ti-arrow-left me-2"></i> Назад
+        </a>
+    </div>
+
+    <form method="post" action="{{ request.app.admin_path }}/{{ resource }}/update/{{ pk }}" enctype="{{ model_resource.enctype }}" id="updateForm">
+        <div class="row g-4">
+
+            <div class="col-lg-8">
+                <div class="bg-white border rounded-3 shadow-sm p-4">
+                    {% for input in inputs %}
+                        <div class="mb-4">
+                            {{ input|safe }}
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <div class="col-lg-4">
+                <div class="bg-white border rounded-3 shadow-sm p-3 sticky-top" style="top: 20px;">
+                    <h6 class="text-secondary text-uppercase fw-bold mb-3" style="font-size: 0.70rem; letter-spacing: 0.05em;">Действия</h6>
+
+                    <div class="d-grid gap-2">
+                        <button type="submit" name="save" id="saveBtn" class="btn btn-primary d-flex align-items-center justify-content-center" style="height: 44px; font-weight: 500;">
+                            <span class="btn-text"><i class="ti ti-device-floppy me-2"></i> Сохранить</span>
+                        </button>
+                        <button type="submit" name="save_and_return" class="btn btn-outline-primary d-flex align-items-center justify-content-center" style="height: 44px; font-weight: 500;">
+                            <i class="ti ti-arrow-back-up me-2"></i> Сохранить и вернуться
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+
+<style>
+    body { background-color: #f8fafc; }
+    .form-control:focus, .form-select:focus {
+        border-color: #3b82f6 !important;
+        box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.15) !important;
+        outline: none;
+    }
+    .form-control, .form-select { height: 44px; border-radius: 8px; border: 1px solid #e2e8f0; }
+    .btn { border-radius: 8px; transition: all 0.2s ease; }
+    .btn-loading { opacity: 0.7; pointer-events: none; }
+</style>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        document.querySelectorAll('input:not([type="checkbox"]):not([type="radio"]):not([type="submit"]), textarea, select').forEach(el => {
+            el.classList.add('form-control');
+        });
+
+        const form = document.getElementById('updateForm');
+        const saveBtn = document.getElementById('saveBtn');
+
+        form.addEventListener('submit', () => {
+            saveBtn.classList.add('btn-loading');
+            saveBtn.innerHTML = '<i class="ti ti-loader animate-spin me-2"></i> Сохранение...';
+        });
+    });
+</script>
+
+<style>
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .animate-spin { animation: spin 1s linear infinite; display: inline-block; }
+</style>
+
+{% endblock %}

@@ -1,44 +1,54 @@
 <!DOCTYPE html>
-<html lang="en">
-
+<html lang="{{ request.locale|default('en') }}">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+    <title>{{ title }}</title>
+
+    <!-- SEO: Описание страницы -->
+    <meta name="description" content="{% block meta_description %}{% endblock %}">
+
+    <!-- Preconnect: Ускоряет связь с серверами CDN -->
+    <link rel="preconnect" href="https://cdn.jsdelivr.net">
+
+    <!-- CSS: Основное ядро Tabler -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/core@1.0.0-beta17/dist/css/tabler.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/core@1.0.0-beta17/dist/css/tabler-flags.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/core@1.0.0-beta17/dist/css/tabler-payments.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/core@1.0.0-beta17/dist/css/tabler-vendors.min.css">
-    <script src="https://kit.fontawesome.com/65694932fa.js" crossorigin="anonymous"></script>
+
+    <!-- Favicon -->
     {% if request.app.favicon_url %}
     <link rel="icon" href="{{ request.app.favicon_url }}">
     {% endif %}
-    <script src="https://cdn.jsdelivr.net/npm/choices.js/public/assets/scripts/choices.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@tabler/core@1.0.0-beta17/dist/js/tabler.min.js"></script>
-    <script type="text/javascript" src="https://cdn.jsdelivr.net/jquery/latest/jquery.min.js"></script>
-    <script type="text/javascript" src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
-    {% block head %}
+
+    <!-- Стили для кастомизации -->
+    {% block head %}{% endblock %}
+
+    <script src="https://cdn.jsdelivr.net/npm/@tabler/core@1.0.0-beta17/dist/js/tabler.min.js" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/choices.js/public/assets/scripts/choices.min.js" defer></script>
+
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-T7MFB9RV5E"></script>
     <script>
         window.dataLayer = window.dataLayer || [];
-
-        function gtag() {
-            dataLayer.push(arguments);
-        }
-
+        function gtag(){dataLayer.push(arguments);}
         gtag('js', new Date());
         gtag('config', 'G-T7MFB9RV5E');
     </script>
     <script defer data-domain="fastapi-admin.long2ice.io" src="https://plausible.long2ice.io/js/plausible.js"></script>
-
-    {% endblock %}
-    <title>{{ title }}</title>
 </head>
-{% block outer_body %}
 
-<body>
-    {% block body %}
+<body class="antialiased">
+
+    {% block outer_body %}
+    {% block body %}{% endblock %}
     {% endblock %}
-</body>
-{% endblock %}
 
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/moment@2.30.1/moment.min.js"></script>
+
+    <script src="https://kit.fontawesome.com/65694932fa.js" crossorigin="anonymous" defer></script>
+</body>
 </html>

@@ -1,60 +1,71 @@
 {% extends 'layout.html' %}
-
 {% block page_body %}
-<div class="container-xl">
-    <!-- Сетка статистики -->
-    <div class="row row-deck row-cards">
-        <div class="col-sm-6 col-lg-3">
-            <div class="card">
-                <div class="card-body">
-                    <div class="d-flex align-items-center">
-                        <div class="subheader">Всего товаров</div>
-                    </div>
-                    <div class="h1 mb-3">{{ stats.products }}</div>
-                </div>
-            </div>
-        </div>
-        <div class="col-sm-6 col-lg-3">
-            <div class="card">
-                <div class="card-body">
-                    <div class="d-flex align-items-center">
-                        <div class="subheader">Сотрудники</div>
-                    </div>
-                    <div class="h1 mb-3">{{ stats.employees }}</div>
-                </div>
-            </div>
-        </div>
-    </div>
 
-    <!-- Область управления конфигами -->
-    <div class="row row-cards mt-3">
-        <div class="col-12">
-            <div class="card">
-                <div class="card-header"><h3 class="card-title">Системные настройки</h3></div>
-                <div class="table-responsive">
-                    <table class="table card-table table-vcenter">
-                        <thead><tr><th>Name</th><th>Status</th><th>Action</th></tr></thead>
-                        <tbody>
-                            <!-- Это цикл по твоим конфигам -->
-                            {% for conf in configs %}
-                            <tr>
-                                <td>{{ conf.name }}</td>
-                                <td><span class="badge {{ 'bg-green' if conf.status else 'bg-red' }}">
-                                    {{ 'Active' if conf.status else 'Inactive' }}
-                                </span></td>
-                                <td>
-                                    <!-- AJAX или FORM для переключения -->
-                                    <form method="POST" action="/admin/config/switch_status/{{ conf.id }}">
-                                        <button type="submit" class="btn btn-sm btn-ghost-primary">Переключить</button>
-                                    </form>
-                                </td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<div class="container-fluid">
+    <div class="row row-cards g-4">
+
+        <!-- График 1: Товары по категориям (Круговой/Donut) -->
+        <div class="col-lg-6">
+            <div class="card h-100">
+                <div class="card-header"><h3 class="card-title">Соотношение товаров по категориям</h3></div>
+                <div class="card-body"><canvas id="chartCategory"></canvas></div>
+            </div>
+        </div>
+
+        <!-- График 2: Товары по цене (Столбчатый/Bar) -->
+        <div class="col-lg-6">
+            <div class="card h-100">
+                <div class="card-header"><h3 class="card-title">Распределение товаров по ценовым диапазонам</h3></div>
+                <div class="card-body"><canvas id="chartPrice"></canvas></div>
+            </div>
+        </div>
+
+        <!-- График 3: По количеству (Horizontal Bar) -->
+        <div class="col-lg-6">
+            <div class="card h-100">
+                <div class="card-header"><h3 class="card-title">Топ товаров по количеству на складе</h3></div>
+                <div class="card-body"><canvas id="chartCount"></canvas></div>
+            </div>
+        </div>
+
+        <!-- График 4: Товары по поставщикам (Pie) -->
+        <div class="col-lg-6">
+            <div class="card h-100">
+                <div class="card-header"><h3 class="card-title">Доля товаров по поставщикам</h3></div>
+                <div class="card-body"><canvas id="chartSupplier"></canvas></div>
             </div>
         </div>
     </div>
 </div>
+
+<script>
+    const createChart = (ctx, type, labels, data, label) => {
+        return new Chart(ctx, {
+            type: type,
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: label,
+                    data: data,
+                    backgroundColor: ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6']
+                }]
+            },
+            options: { responsive: true, maintainAspectRatio: false }
+        });
+    };
+
+    const data = {{ chart_data|tojson }};
+
+    createChart(document.getElementById('chartCategory'), 'doughnut', data.by_category.labels, data.by_category.data, 'Кол-во');
+    createChart(document.getElementById('chartPrice'), 'bar', data.by_price.labels, data.by_price.data, 'Товаров');
+    createChart(document.getElementById('chartCount'), 'bar', data.by_count.labels, data.by_count.data, 'Остаток');
+    createChart(document.getElementById('chartSupplier'), 'pie', data.by_supplier.labels, data.by_supplier.data, 'Доля');
+</script>
+
+<style>
+    .card { border-radius: 16px !important; shadow-sm; }
+    canvas { max-height: 300px; }
+</style>
 {% endblock %}
