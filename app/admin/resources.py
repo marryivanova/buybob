@@ -35,9 +35,9 @@ class EmployeeResource(Model):
 
     fields = [
         "id",
-        "username",
-        "email",
-        "full_name",
+        Field(name="username", label="Логин"),
+        Field(name="email", label="Почта", input_=inputs.Email()),
+        Field(name="full_name", label="ФИО"),
         Field(
             name="password",
             label="Пароль",
@@ -145,8 +145,8 @@ class Content(Dropdown):
         fields = [
             "id",
             Field(name="name", label="Название"),
-            Field(name="slug", label="Slug"),
-            Field(name="created_at", label="Дата создания"),
+            Field(name="slug", label="Описание"),
+            Field(name="created_at", label="Дата создания", input_=inputs.Date()),
         ]
 
     resources = [CategoryResource]
