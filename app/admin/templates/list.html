@@ -70,15 +70,14 @@
                         {% endfor %}
                         <td class="text-end pe-4">
                             <div class="d-flex justify-content-end gap-2">
-                                {% for action in model_resource.actions %}
-                                    {% set url = request.app.admin_path + '/' + resource +'/'+ action.name +'/'+ value[0]|string %}
-                                    <a href="#"
-                                       onclick="onAction('{{ url }}','{{ action.method }}')"
-                                       class="btn btn-sm btn-action"
-                                       title="{{ action.label }}">
-                                        <i class="{{ action.icon }}"></i>
-                                    </a>
-                                {% endfor %}
+                                {% set edit_url = request.app.admin_path + '/' + resource + '/update/' + value[0]|string %}
+                                <a href="{{ edit_url }}" class="btn btn-edit btn-sm" title="Редактировать">
+                                    <i class="ti ti-pencil me-1"></i> Изменить
+                                </a>
+                                {% set delete_url = request.app.admin_path + '/' + resource + '/delete/' + value[0]|string %}
+                                <a href="#" onclick="onAction('{{ delete_url }}', 'DELETE')" class="btn btn-delete btn-sm" title="Удалить">
+                                    <i class="ti ti-trash me-1"></i> Удалить
+                                </a>
                             </div>
                         </td>
                     </tr>
@@ -91,22 +90,42 @@
 
 <style>
     .card { border-radius: 16px; }
-    .btn-action {
-        background: #ffffff;
-        color: #475569;
-        border: 1px solid #e2e8f0;
-        width: 32px;
-        height: 32px;
+
+    /* Modern Buttons */
+    .btn-sm {
+        padding: 6px 14px !important;
+        font-size: 0.875rem !important;
+        font-weight: 500 !important;
+        border-radius: 8px !important;
         display: inline-flex;
         align-items: center;
-        justify-content: center;
-        border-radius: 8px;
-        transition: all 0.2s;
+        gap: 4px;
+        border: 1px solid transparent !important;
+        text-decoration: none !important;
     }
-    .btn-action:hover {
-        background: #f1f5f9;
-        color: #0f172a;
-        border-color: #cbd5e1;
+    .btn-edit { background: #eef2ff !important; color: #1e40af !important; border-color: #c7d2fe !important; }
+    .btn-edit:hover { background: #dbeafe !important; color: #1e3a8a !important; border-color: #a5b4fc !important; }
+    .btn-delete { background: #fef2f2 !important; color: #b91c1c !important; border-color: #fecaca !important; }
+    .btn-delete:hover { background: #fee2e2 !important; color: #7f1d1d !important; border-color: #fca5a5 !important; }
+
+    .badge {
+        padding: 0.4em 0.8em !important;
+        font-weight: 600 !important;
+        border-radius: 6px !important;
+        border: 1px solid transparent !important;
+        color: #1a1c21 !important;
+    }
+
+    .badge a { color: #1a1c21 !important; text-decoration: none !important; }
+
+    .badge-soft-success { background-color: #d1fae5 !important; border-color: #a7f3d0 !important; }
+    .badge-soft-warning { background-color: #fef3c7 !important; border-color: #fde68a !important; }
+    .badge-soft-primary { background-color: #dbeafe !important; border-color: #bfdbfe !important; }
+    .badge-soft-danger  { background-color: #fee2e2 !important; border-color: #fecaca !important; }
+
+    .table td:last-child { min-width: 200px; }
+    @media (max-width: 768px) {
+        .btn-sm { padding: 4px 10px !important; font-size: 0.75rem !important; }
     }
 </style>
 
@@ -114,7 +133,7 @@
     $('#checkbox-select-all').change(function() {
         const checked = $(this).is(':checked');
         $('.checkbox-select-item').prop('checked', checked);
-        $('#bulk-actions').slideToggle(checked);
+        $('#bulk-actions').toggle(checked);
     });
 
     $('.checkbox-select-item').change(function() {
@@ -124,23 +143,14 @@
 
     function onAction(url, method) {
         if (method === 'DELETE' && !confirm('Вы уверены, что хотите удалить этот элемент?')) return;
-
-        $.ajax({
-            url: url,
-            method: method,
-            success: function() { location.reload(); },
-            error: function() { alert('Ошибка при выполнении операции'); }
-        });
+        $.ajax({ url: url, method: method, success: function() { location.reload(); } });
     }
 
     function onBulkAction(url, method) {
         let ids = $('.checkbox-select-item:checked').map(function () { return $(this).attr('data-id') }).get();
-        if (ids.length > 0 && confirm('Выполнить для выбранных элементов?')) {
-            $.ajax({
-                url: url + '?ids=' + ids.join(','),
-                method: method,
-                success: function() { location.reload(); }
-            });
+        if (ids.length === 0) return alert('Выберите элементы');
+        if (confirm('Выполнить для выбранных?')) {
+            $.ajax({ url: url + '?ids=' + ids.join(','), method: method, success: function() { location.reload(); } });
         }
     }
 </script>
